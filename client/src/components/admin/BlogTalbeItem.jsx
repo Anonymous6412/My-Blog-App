@@ -18,8 +18,8 @@ const BlogDate = new Date(createdAt)
             </p>
         </td>
         <td className='px-2 py4 flex text-xs gap-3'>
-            <button className='border px2 py-0.5 mt-1 rounded cursor-pointer'>
-                {blog.isPublished ? 'Published' : 'Unpublished'}
+            <button className='border px-2 py-0.5 mt-1 rounded cursor-pointer'>
+                {blog.isPublished ? 'Unpublish' : 'Publish'}
             </button>
             <img src={assets.cross_icon} className='w-8 hover:scale-110 transition-all
             cursor-pointer' alt="" />
