@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { assets, dashboard_data } from "../../assets/assets";
+import { assets,  } from "../../assets/assets";
 import BlogTalbeItem from "../../components/admin/BlogTalbeItem";
+import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -10,8 +12,17 @@ const Dashboard = () => {
     recentBlogs: [],
   });
 
+  const { axios } = useAppContext();
+
   const fetchDashboard = async () => {
-    setDashboardData(dashboard_data);
+    try {
+      const { data } = await axios.get("/api/admin/dashboard");
+      data.success
+        ? setDashboardData(data.dashboardData)
+        : toast.error(data.message);
+    } catch (error) {
+      toast.error(error.message)
+    }
   };
 
   useEffect(() => {
@@ -97,7 +108,8 @@ const Dashboard = () => {
                   <BlogTalbeItem
                     key={blog._id}
                     blog={blog}
-                    fetchBlogs={fetchDashboard} index={index + 1}
+                    fetchBlogs={fetchDashboard}
+                    index={index + 1}
                   />
                 );
               })}

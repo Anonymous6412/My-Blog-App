@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { assets, blog_data, comments_data } from "../assets/assets";
+import { assets,   } from "../assets/assets";
 import Navbar from "../components/Navbar";
 import Moment from "moment";
 import Footer from "../components/Footer";
 import Loader from "../components/Loader";
-
+import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const Blog = () => {
   const { id } = useParams();
+
+  const { axios } = useAppContext();
 
   const [data, setData] = useState(null);
   const [comments, setComments] = useState([]);
@@ -16,16 +19,49 @@ const Blog = () => {
   const [content, setContent] = useState("");
 
   const fetchBlogData = async () => {
-    const data = blog_data.find((item) => item._id === id);
-    setData(data);
+    try {
+      const { data } = await axios.get(`/api/blog/${id}`);
+      data.success ? setData(data.blog) : toast.error(data.message);
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   const fetchComments = async () => {
-    setComments(comments_data);
+    try {
+      const { data } = await axios.post(`/api/blog/comments`, { blogId: id });
+      console.log("Blog ID:", id);
+      if (data.success) {
+        console.log("Received comments:", data.comments);
+        setComments(data.comments);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   const addComment = async (e) => {
     e.preventDefault();
+    try {
+      const { data } = await axios.post(`/api/blog/add-comment`, {
+        blog: id,
+        name,
+        content,
+      });
+        console.log("Comment response:", data);
+      if(data.success){
+        toast.success(data.message)
+        setName('')
+        setContent('')
+        fetchComments();
+      }else{
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
@@ -117,7 +153,9 @@ const Blog = () => {
         {/* Share Buttons */}
 
         <div className="my-24 max-w-3xl mx-auto">
-          <p className="font-semibold my-4">Share this article on social media</p>
+          <p className="font-semibold my-4">
+            Share this article on social media
+          </p>
           <div className="flex">
             <img src={assets.facebook_icon} width={50} alt="" />
             <img src={assets.twitter_icon} width={50} alt="" />
@@ -125,10 +163,10 @@ const Blog = () => {
           </div>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   ) : (
-    <Loader/>
+    <Loader />
   );
 };
 
